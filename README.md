@@ -36,5 +36,5 @@ You don't need Visual Studio or heavy software. Just follow these simple steps:
 
 1. **Clone the repository:**
 ```bash
-   git clone [https://github.com/TU_USUARIO/axiom_ecs_core.git](https://github.com/TU_USUARIO/axiom_ecs_core.git)
+   git clone [https://github.com/https://github.com/echeparesmanuel36-design/axiom_ecs_core.git](https://github.com/https://github.com/echeparesmanuel36-design/axiom_ecs_core.git)
    cd axiom_ecs_core
