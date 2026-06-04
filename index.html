@@ -2,58 +2,87 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>AXIOM ECS CORE // WEB DEMO</title>
+    <title>AXIOM ECS CORE // INTERACTIVE ARCADE</title>
     <style>
-        body { margin: 0; background-color: #020205; color: #00ff66; font-family: monospace; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
-        #container { position: relative; border: 2px solid #00ff66; box-shadow: 0 0 15px rgba(0, 255, 102, 0.2); }
-        .hud { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); border: 1px solid #00ff66; padding: 10px; font-size: 12px; pointer-events: none; }
+        body { margin: 0; background-color: #020205; color: #00ff66; font-family: monospace; overflow: hidden; display: flex; align-items: center; justify-content: center; height: 100vh; user-select: none; }
+        #container { position: relative; border: 2px solid #00ff66; box-shadow: 0 0 20px #00ff6633; }
+        .hud { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.85); border: 1px solid #00ff66; padding: 12px; font-size: 13px; pointer-events: none; }
     </style>
 </head>
 <body>
     <div id="container">
         <div class="hud">
-            FPS: 60 (WEB OPTIMIZED)<br>
-            CORE: DATA-DRIVEN ECS ALIGNMENT<br>
-            PARTICLES: <span id="count">0</span>
+            <span style="color:#ffff00; font-weight:bold;">OBJETIVO: ¡BARRE LAS PARTÍCULAS ANTES DE QUE SE ROJÉEN!</span><br>
+            SCORE: <span id="score">0</span> | NIVEL: <span id="level">1</span><br>
+            <span style="color:#00ffff;">DESLIZA EL DEDO / RATÓN PARA DESTRUIR</span>
         </div>
         <canvas id="canvas"></canvas>
     </div>
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = 800; canvas.height = 600;
+        const canvas = document.getElementById('canvas'); const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth < 800 ? window.innerWidth - 20 : 800;
+        canvas.height = window.innerHeight < 600 ? window.innerHeight - 20 : 600;
 
-        // Estructuras emulando el ECS empaquetado (Paquetes de arrays en JS)
-        const count = 1200; // Ajustado para que vuele en cualquier navegador
-        document.getElementById('count').innerText = count;
-        
-        const positionsX = new Float32Array(count);
-        const positionsY = new Float32Array(count);
-        const velocitiesX = new Float32Array(count);
-        const velocitiesY = new Float32Array(count);
-        const colors = [];
-
-        for(let i=0; i<count; i++) {
-            positionsX[i] = Math.random() * (canvas.width - 40) + 20;
-            positionsY[i] = Math.random() * (canvas.height - 40) + 20;
-            velocitiesX[i] = (Math.random() - 0.5) * 6;
-            velocitiesY[i] = (Math.random() - 0.5) * 6;
-            colors.push(`hsl(${Math.random() * 40 + 140}, 100%, 50%)`); // Tonos neón verde/cian
+        // Web Audio API para sonido sintético instantáneo sin archivos
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playLaserSound() {
+            let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
 
-        function loop() {
-            ctx.fillStyle = '#010103'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Sistema de físicas compacto
+        let score = 0, level = 1, speedMultiplier = 1;
+        const count = 300;
+        const px = new Float32Array(count), py = new Float32Array(count);
+        const vx = new Float32Array(count), vy = new Float32Array(count);
+        const heat = new Float32Array(count); // Sistema de sobrecalentamiento
+
+        function spawn(i) {
+            px[i] = Math.random() * canvas.width; py[i] = Math.random() * canvas.height;
+            vx[i] = (Math.random() - 0.5) * 4 * speedMultiplier; vy[i] = (Math.random() - 0.5) * 4 * speedMultiplier;
+            heat[i] = 0;
+        }
+        for(let i=0; i<count; i++) spawn(i);
+
+        // Interacción Táctil y Ratón unificada
+        function checkCollision(mx, my) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             for(let i=0; i<count; i++) {
-                positionsX[i] += velocitiesX[i];
-                positionsY[i] += velocitiesY[i];
+                let dx = px[i] - mx, dy = py[i] - my;
+                if(Math.sqrt(dx*dx + dy*dy) < 40) {
+                    score += 10; document.getElementById('score').innerText = score;
+                    playLaserSound();
+                    // WOW MOMENT: Subida de nivel y caos de velocidad
+                    if(score % 400 === 0) {
+                        level++; speedMultiplier += 0.5;
+                        document.getElementById('level').innerText = level;
+                    }
+                    spawn(i);
+                }
+            }
+        }
+        canvas.addEventListener('mousemove', (e) => { const r = canvas.getBoundingClientRect(); checkCollision(e.clientX - r.left, e.clientY - r.top); });
+        canvas.addEventListener('touchmove', (e) => { const r = canvas.getBoundingClientRect(); const t = e.touches[0]; checkCollision(t.clientX - r.left, t.clientY - r.top); e.preventDefault(); }, {passive: false});
 
-                if(positionsX[i] < 0 || positionsX[i] > canvas.width) velocitiesX[i] *= -1;
-                if(positionsY[i] < 0 || positionsY[i] > canvas.height) velocitiesY[i] *= -1;
+        function loop() {
+            ctx.fillStyle = 'rgba(1, 1, 3, 0.3)'; ctx.fillRect(0, 0, canvas.width, canvas.height); // Estela visual
+            for(let i=0; i<count; i++) {
+                px[i] += vx[i]; py[i] += vy[i];
+                heat[i] += 0.002; // Se van calentando con el tiempo
+                if(px[i] < 0 || px[i] > canvas.width) vx[i] *= -1;
+                if(py[i] < 0 || py[i] > canvas.height) vy[i] *= -1;
 
-                ctx.fillStyle = colors[i];
-                ctx.beginPath(); ctx.arc(positionsX[i], positionsY[i], 2.5, 0, Math.PI*2); ctx.fill();
+                // Cambio dinámico de color según calor
+                let r = Math.floor(heat[i] * 255);
+                let g = Math.floor((1 - heat[i]) * 255);
+                ctx.fillStyle = `rgb(${r}, ${g}, 150)`;
+                
+                ctx.beginPath(); ctx.arc(px[i], py[i], 3 + heat[i]*4, 0, Math.PI*2); ctx.fill();
+                if(heat[i] > 1) spawn(i); // Si explotan de calor renacen
             }
             requestAnimationFrame(loop);
         }
