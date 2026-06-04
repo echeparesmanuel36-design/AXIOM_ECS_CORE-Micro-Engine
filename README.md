@@ -38,3 +38,41 @@ You don't need Visual Studio or heavy software. Just follow these simple steps:
 ```bash
    git clone [https://github.com/https://github.com/echeparesmanuel36-design/axiom_ecs_core.git](https://github.com/https://github.com/echeparesmanuel36-design/axiom_ecs_core.git)
    cd axiom_ecs_core
+Run the engine:
+
+```bash
+   cargo run --release
+```
+
+### And that's it! Rust will automatically download dependencies, compile the code, and launch the engine at maximum speed. 🏎️💨
+
+## ⚙️ Core Architecture Blueprint
+The entire engine logic is structured in under 100 lines of crystalline code. Perfect for learning how a real high-performance ECS works:
+
+```rust
+// Data Alignment (Components)
+struct Position { x: f32, y: f32 }
+struct Velocity { x: f32, y: f32 }
+
+// The Systems (Logic)
+fn update_physics(ecs: &mut AxiomECS, dt: f32) {
+    // Process thousands of movements in a single microsecond sweep
+}
+```
+
+## 🗺️ Roadmap & Future Features
+[ ] Multithreaded System Execution (Parallel CPU processing)
+
+[ ] Spatial Partitioning Grid (Ultra-fast collision handling for 100k+ entities)
+
+[ ] WebAssembly (Wasm) target compilation with a single click
+
+[ ] Custom Audio-Reactive Kinetic Feedback
+
+📄 License
+Distributed under the MIT License. Feel free to fork, hack, modify, and build your own sovereign software on top of it.
+
+🦀 Show some love!
+If you think commercial engines are too heavy and you love bare-metal engineering, drop a star (⭐) to support the project!
+
+Developed by Axiom Systems. ⚡
