@@ -60,15 +60,28 @@ fn update_physics(ecs: &mut AxiomECS, dt: f32) {
     // Process thousands of movements in a single microsecond sweep
 }
 ```
+### 🌐 Compiling to WebAssembly (Run in Browser)
 
-## 🗺️ Roadmap & Future Features
-[ ] Multithreaded System Execution (Parallel CPU processing)
+Axiom Engine supports one-click compilation to the browser using WebAssembly. 
 
-[ ] Spatial Partitioning Grid (Ultra-fast collision handling for 100k+ entities)
+1. Install the WASM target (if you haven't already):
+```bash
+   rustup target add wasm32-unknown-unknown
+   ```
+2. Build the project for web:
+```bash
+   cargo build --target wasm32-unknown-unknown --release
+   ```
+## This will generate a ultra-light .wasm binary inside target/wasm32-unknown-unknown/release/. You can embed it in any standard HTML5 page and it will run at native code speeds inside the browser! 🚀🕹️
 
-[ ] WebAssembly (Wasm) target compilation with a single click
+```markdown
+ 🗺️ Roadmap & Future Features
 
-[ ] Custom Audio-Reactive Kinetic Feedback
+- [x] Multithreaded System Execution (Parallel CPU processing) 🔥 *DONE*
+- [x] Spatial Partitioning Memory Grid layout simulation 🛠️ *DONE*
+- [x] WebAssembly (Wasm) target compilation with a single click 🌐 *DONE*
+- [x] Custom Audio-Reactive Kinetic Feedback 🎧 *DONE*
+```
 
 📄 License
 Distributed under the MIT License. Feel free to fork, hack, modify, and build your own sovereign software on top of it.
