@@ -39,6 +39,7 @@ You don't need Visual Studio or heavy software. Just follow these simple steps:
    git clone [https://github.com/https://github.com/echeparesmanuel36-design/axiom_ecs_core.git](https://github.com/https://github.com/echeparesmanuel36-design/axiom_ecs_core.git)
    cd axiom_ecs_core
 Run the engine:
+```
 
 ```bash
    cargo run --release
